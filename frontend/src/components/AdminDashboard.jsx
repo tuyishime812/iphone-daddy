@@ -691,7 +691,15 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10">
-                                    <img className="h-10 w-10 rounded-md object-cover" src={product.image} alt={product.name} />
+                                    <img
+                                      className="h-10 w-10 rounded-md object-cover"
+                                      src={product.image}
+                                      alt={product.name}
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://placehold.co/40x40/e2e8f0/64748b?text=IMG';
+                                      }}
+                                    />
                                   </div>
                                   <div className="ml-4">
                                     <div className="text-sm font-medium text-gray-900">{product.name}</div>
@@ -874,7 +882,15 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10">
-                                    <img className="h-10 w-10 rounded-md object-cover" src={item.image} alt={item.name} />
+                                    <img
+                                      className="h-10 w-10 rounded-md object-cover"
+                                      src={item.image}
+                                      alt={item.name}
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = 'https://placehold.co/40x40/e2e8f0/64748b?text=IMG';
+                                      }}
+                                    />
                                   </div>
                                   <div className="ml-4">
                                     <div className="text-sm font-medium text-gray-900">{item.name}</div>
