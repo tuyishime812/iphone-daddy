@@ -82,7 +82,7 @@ const ProductDetail = () => {
                 alt={product.name}
                 className="w-full h-auto rounded-lg object-contain max-h-96"
                 onError={(e) => {
-                  e.target.src = '/src/photos/placeholder-image.jpg'; // fallback image
+                  e.target.src = '/images/placeholder-image.jpg'; // fallback image
                 }}
               />
             </div>

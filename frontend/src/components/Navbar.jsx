@@ -20,8 +20,11 @@ const Navbar = () => {
             <Link to="/" className="flex-shrink-0 flex items-center">
               <img
                 className="h-10 w-auto"
-                src="/src/photos/iphone daddy.logo.png"
+                src="/images/iphone daddy.logo.png"
                 alt="iPhone Daddy Logo"
+                onError={(e) => {
+                  e.target.src = '/images/placeholder-image.jpg'; // fallback image
+                }}
               />
               <span className="ml-2 text-xl font-bold text-gray-800">iPhone Daddy</span>
             </Link>

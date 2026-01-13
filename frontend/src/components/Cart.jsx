@@ -50,6 +50,9 @@ const Cart = ({ isOpen, onClose }) => {
                                 src={item.image}
                                 alt={item.name}
                                 className="h-full w-full object-cover object-center"
+                                onError={(e) => {
+                                  e.target.src = '/images/placeholder-image.jpg'; // fallback image
+                                }}
                               />
                             </div>
 

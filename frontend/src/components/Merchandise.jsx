@@ -68,7 +68,7 @@ const Merchandise = () => {
                 alt={item.name}
                 className="w-full h-48 object-cover"
                 onError={(e) => {
-                  e.target.src = '/src/photos/placeholder-image.jpg'; // fallback image
+                  e.target.src = '/images/placeholder-image.jpg'; // fallback image
                 }}
               />
               <div className="p-6">
