@@ -36,6 +36,67 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+async function addSampleData() {
+  try {
+    // Sample products
+    const sampleProducts = [
+      {
+        name: 'iPhone 15 Pro Max',
+        description: 'The latest iPhone with advanced camera system and A17 Pro chip',
+        price: 1199,
+        category: 'iphone',
+        image: '/images/iphone 16.jpg' // Using one of the images from public directory
+      },
+      {
+        name: 'iPhone 14 Pro',
+        description: 'Dynamic Island, 48MP camera system',
+        price: 999,
+        category: 'iphone',
+        image: '/images/iphone 14.jpg'
+      },
+      {
+        name: 'iPhone 13',
+        description: 'Dual-camera system with Night mode',
+        price: 699,
+        category: 'iphone',
+        image: '/images/iphone 13.jpg'
+      }
+    ];
+
+    // Sample merchandise
+    const sampleMerchandise = [
+      {
+        name: 'iPhone Daddy Hoodie',
+        description: 'Premium cotton hoodie with iPhone Daddy logo',
+        price: 49.99,
+        category: 'hoodie',
+        image: '/images/iphone t shirt.jpg'
+      },
+      {
+        name: 'iPhone Daddy T-Shirt',
+        description: 'Comfortable cotton t-shirt with custom design',
+        price: 24.99,
+        category: 'tshirt',
+        image: '/images/iphone t shirt.jpg'
+      }
+    ];
+
+    // Clear existing data and add sample data
+    const Product = require('./backend/models/Product');
+    const Merchandise = require('./backend/models/Merchandise');
+
+    await Product.deleteMany({});
+    await Merchandise.deleteMany({});
+
+    await Product.insertMany(sampleProducts);
+    await Merchandise.insertMany(sampleMerchandise);
+
+    console.log('Sample data added successfully!');
+  } catch (error) {
+    console.error('Error adding sample data:', error);
+  }
+}
+
 async function startServer() {
   try {
     // Start in-memory MongoDB
@@ -49,6 +110,9 @@ async function startServer() {
 
     // Create admin user if it doesn't exist
     await createAdminUser();
+
+    // Add sample data
+    await addSampleData();
 
     // Start the server
     const PORT = process.env.PORT || 5000;
