@@ -40,11 +40,13 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/orders', require('./routes/orders'));
 
 // Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+  // In Vercel environment, the frontend is built to the root dist folder
+  const buildPath = process.env.VERCEL ? path.join(__dirname, '../../dist') : path.join(__dirname, '../frontend/dist');
+  app.use(express.static(buildPath));
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    res.sendFile(path.join(buildPath, 'index.html'));
   });
 }
 
