@@ -96,8 +96,8 @@ const MyOrders = () => {
                 <div>
                   <h3 className="font-bold mb-3">Items</h3>
                   <div className="space-y-3">
-                    {order.items.map(item => (
-                      <div key={item._id} className="flex justify-between items-center border-b pb-2">
+                    {order.items.map((item, index) => (
+                      <div key={`${order._id}-${index}`} className="flex justify-between items-center border-b pb-2">
                         <div>
                           <p className="font-medium">{item.name}</p>
                           <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>

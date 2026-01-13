@@ -89,17 +89,20 @@ exports.updateOrder = async (req, res) => {
   try {
     const { status, paymentStatus } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    // Find order and update it
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...(status && { status }),
+        ...(paymentStatus && { paymentStatus })
+      },
+      { new: true }
+    ).populate('user', 'name email').populate('items.product');
 
-    if (!order) {
+    if (!updatedOrder) {
       return res.status(404).json({ msg: 'Order not found' });
     }
 
-    // Update fields if provided
-    if (status) order.status = status;
-    if (paymentStatus) order.paymentStatus = paymentStatus;
-
-    const updatedOrder = await order.save();
     res.json(updatedOrder);
   } catch (err) {
     console.error(err.message);
@@ -118,7 +121,7 @@ exports.deleteOrder = async (req, res) => {
       return res.status(404).json({ msg: 'Order not found' });
     }
 
-    await Order.findByIdAndRemove(req.params.id);
+    await Order.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Order removed' });
   } catch (err) {
     console.error(err.message);
