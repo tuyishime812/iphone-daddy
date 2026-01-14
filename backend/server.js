@@ -10,19 +10,11 @@ dotenv.config();
 
 const app = express();
 
-// Connect to MongoDB (only when running as main module)
-if (require.main === module) {
-  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/iphone-daddy', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('MongoDB connected');
-    // Create admin user if it doesn't exist
-    createAdminUser();
-  })
-  .catch(err => console.log('MongoDB connection error:', err));
-}
+// Enhanced error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ msg: 'Something went wrong!', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
+});
 
 // Middleware
 app.use(cors());
@@ -50,14 +42,33 @@ if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
   });
 }
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 const PORT = process.env.PORT || 5000;
 
-// Export the app for testing
-module.exports = app;
-
-// Only start the server if this file is run directly
+// Connect to MongoDB (only when running as main module)
 if (require.main === module) {
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/iphone-daddy', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('MongoDB connected');
+    // Create admin user if it doesn't exist
+    createAdminUser();
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit if DB connection fails
+  });
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
+
+// Export the app for testing
+module.exports = app;

@@ -1,23 +1,39 @@
 // utils/chatbot.js
-const OpenAI = require('openai');
+// Conditionally import OpenAI only when needed
+let OpenAI = null;
 
-// Initialize OpenAI client only if API key is available
-let openai = null;
+// Initialize OpenAI client only when needed and API key is available
+let openaiClient = null;
 
-if (process.env.OPENAI_API_KEY) {
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
+const getOpenAIClient = () => {
+  // Only load and initialize the client if we have a valid API key and haven't initialized it yet
+  if (!openaiClient && process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '') {
+    try {
+      // Dynamically import OpenAI only when needed
+      if (!OpenAI) {
+        OpenAI = require('openai');
+      }
+      
+      openaiClient = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    } catch (error) {
+      console.error('Error initializing OpenAI client:', error.message);
+      return null;
+    }
+  }
+  return openaiClient;
+};
 
 const getChatResponse = async (message) => {
   try {
-    // If no API key is configured, return a default response
-    if (!openai || !openai.apiKey) {
+    // Check if API key is available, if not return default response
+    const client = getOpenAIClient();
+    if (!client) {
       return "Thank you for your message! Our team will get back to you shortly. To enable the AI assistant, please configure the OPENAI_API_KEY environment variable.";
     }
 
-    const response = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         {
