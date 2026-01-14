@@ -32,14 +32,57 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/orders', require('./routes/orders'));
 
 // Serve frontend in production
-if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-  // In Vercel environment, the frontend is built to the root dist folder
-  const buildPath = process.env.VERCEL ? path.join(__dirname, '../../dist') : path.join(__dirname, '../frontend/dist');
-  app.use(express.static(buildPath));
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.RENDER) {
+  // Determine the correct build path based on environment
+  let buildPath;
 
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-  });
+  // Check if frontend dist folder exists in various possible locations
+  const possiblePaths = [
+    path.join(__dirname, '../dist'),           // Backend-relative dist
+    path.join(__dirname, '../../dist'),       // Root-level dist (after build)
+    path.join(__dirname, '../frontend/dist'), // Frontend build dir
+    path.join(process.cwd(), 'dist'),         // Current working directory dist
+  ];
+
+  for (const testPath of possiblePaths) {
+    if (require('fs').existsSync(testPath)) {
+      buildPath = testPath;
+      break;
+    }
+  }
+
+  if (buildPath) {
+    app.use(express.static(buildPath));
+
+    app.get('*', (req, res) => {
+      // Check if the requested file exists in the static directory
+      const filePath = path.join(buildPath, req.path);
+      require('fs').exists(filePath, (exists) => {
+        if (exists && req.path !== '/') {
+          // If it's a file that exists, serve it normally
+          res.sendFile(filePath);
+        } else {
+          // Otherwise, serve the index.html for SPA routing
+          res.sendFile(path.join(buildPath, 'index.html'));
+        }
+      });
+    });
+  } else {
+    // If no dist folder found, serve a simple message
+    console.warn('Warning: Frontend build directory not found. Serving API only.');
+    app.get('*', (req, res) => {
+      res.json({
+        message: 'Frontend build not found. API endpoints available at /api/*',
+        availableEndpoints: [
+          '/api/products',
+          '/api/merchandise',
+          '/api/auth',
+          '/api/chat',
+          '/api/orders'
+        ]
+      });
+    });
+  }
 }
 
 // Health check endpoint

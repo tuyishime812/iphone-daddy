@@ -2,7 +2,15 @@ services:
   - type: web
     name: iphone-daddy
     env: node
-    buildCommand: npm install && cd frontend && npm install && npm run build
+    buildCommand: |
+      npm install
+      cd frontend
+      npm install
+      npm run build
+      cd ..
+      # Copy frontend build to backend dist folder
+      mkdir -p backend/dist
+      cp -r frontend/dist/* backend/dist/ 2>/dev/null || echo "Copying frontend build to backend/dist"
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
