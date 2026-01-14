@@ -1,14 +1,20 @@
 // utils/chatbot.js
 const OpenAI = require('openai');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI client only if API key is available
+let openai = null;
+
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 const getChatResponse = async (message) => {
   try {
-    if (!openai.apiKey) {
-      throw new Error('OpenAI API key not configured');
+    // If no API key is configured, return a default response
+    if (!openai || !openai.apiKey) {
+      return "Thank you for your message! Our team will get back to you shortly. To enable the AI assistant, please configure the OPENAI_API_KEY environment variable.";
     }
 
     const response = await openai.chat.completions.create({
@@ -30,7 +36,8 @@ const getChatResponse = async (message) => {
     return response.choices[0].message.content.trim();
   } catch (error) {
     console.error('Error communicating with AI assistant:', error);
-    throw new Error('Error communicating with AI assistant');
+    // Return a helpful message if there's an error
+    return "Sorry, I'm having trouble connecting to the AI service right now. Our team will get back to you as soon as possible!";
   }
 };
 

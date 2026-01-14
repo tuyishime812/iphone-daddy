@@ -4,17 +4,22 @@ const mongoose = require('mongoose');
 const Product = require('./backend/models/Product');
 const Merchandise = require('./backend/models/Merchandise');
 
-async function addSampleData() {
+async function addSampleDataWithMemoryDB() {
+  let mongoServer;
+  
   try {
-    // Start in-memory MongoDB
-    const mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
+    // Start in-memory MongoDB server
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
     
-    // Connect to in-memory DB
-    await mongoose.connect(uri);
+    // Connect to in-memory MongoDB
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     
     console.log('Connected to in-memory MongoDB');
-    
+
     // Sample products
     const sampleProducts = [
       {
@@ -22,7 +27,7 @@ async function addSampleData() {
         description: 'The latest iPhone with advanced camera system and A17 Pro chip',
         price: 1199,
         category: 'iphone',
-        image: '/images/iphone 16.jpg' // Using one of the images from public directory
+        image: '/images/iphone 16.jpg'
       },
       {
         name: 'iPhone 14 Pro',
@@ -61,23 +66,27 @@ async function addSampleData() {
     // Clear existing data
     await Product.deleteMany({});
     await Merchandise.deleteMany({});
-    
+
     // Add sample products
     await Product.insertMany(sampleProducts);
     console.log('Sample products added');
-    
+
     // Add sample merchandise
     await Merchandise.insertMany(sampleMerchandise);
     console.log('Sample merchandise added');
-    
-    // Close connection
-    await mongoose.disconnect();
-    await mongod.stop();
-    console.log('Sample data added successfully!');
+
+    console.log('Sample data added successfully to in-memory database!');
+    console.log('Note: This is only for testing purposes. For the actual application, you need MongoDB running.');
+
   } catch (error) {
     console.error('Error adding sample data:', error);
-    process.exit(1);
+  } finally {
+    // Close connections
+    await mongoose.disconnect();
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
   }
 }
 
-addSampleData();
+addSampleDataWithMemoryDB();

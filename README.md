@@ -40,11 +40,16 @@ npm install
 cd ..
 ```
 
-3. Set up environment variables:
+3. Install and run MongoDB:
+   - Option 1: Install MongoDB Community Edition locally from https://www.mongodb.com/try/download/community
+   - Option 2: Use MongoDB Atlas cloud service (recommended for production)
+
+4. Set up environment variables:
 Create a `.env` file in the root directory with the following:
 ```env
 # Database
 MONGODB_URI=mongodb://localhost:27017/iphone-daddy
+# For MongoDB Atlas: mongodb+srv://username:password@cluster.mongodb.net/database-name
 
 # JWT
 JWT_SECRET=your_jwt_secret_key_here
@@ -56,7 +61,12 @@ OPENAI_API_KEY=your_openai_api_key_here
 PORT=5000
 ```
 
-4. Run the application:
+5. Add sample data (optional):
+```bash
+node add-sample-data.js
+```
+
+6. Run the application:
 ```bash
 # Development mode
 npm run dev
@@ -163,9 +173,9 @@ iphone-daddy/
 
 ## Environment Variables
 
-- `MONGODB_URI` - MongoDB connection string
-- `JWT_SECRET` - Secret key for JWT tokens
-- `OPENAI_API_KEY` - OpenAI API key for chatbot
+- `MONGODB_URI` - MongoDB connection string (required)
+- `JWT_SECRET` - Secret key for JWT tokens (required)
+- `OPENAI_API_KEY` - OpenAI API key for chatbot (optional - chatbot will use default responses if not provided)
 - `PORT` - Server port (default: 5000)
 
 ## Admin Dashboard
