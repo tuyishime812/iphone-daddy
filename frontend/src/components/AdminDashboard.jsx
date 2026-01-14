@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productService, merchandiseService, orderService } from '../services/api';
+import { productService, merchandiseService, orderService, authService } from '../services/api';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -40,35 +40,53 @@ const AdminDashboard = () => {
   });
   const navigate = useNavigate();
 
-  // Check if user is logged in
+  // Check if user is logged in and has admin role
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-    }
-  }, [navigate]);
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-  // Fetch products, merchandise, and orders
-  useEffect(() => {
-    const fetchData = async () => {
       try {
-        const [productsRes, merchandiseRes, ordersRes] = await Promise.all([
-          productService.getAll(),
-          merchandiseService.getAll(),
-          orderService.getAll()
-        ]);
-
-        setProducts(productsRes.data);
-        setMerchandise(merchandiseRes.data);
-        setOrders(ordersRes.data);
-        setLoading(false);
+        // Verify token and check if user is admin
+        const response = await authService.getMe();
+        if (response.data.role !== 'admin') {
+          navigate('/'); // Redirect non-admin users
+        }
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setLoading(false);
+        console.error('Auth verification failed:', err);
+        localStorage.removeItem('token');
+        navigate('/login');
       }
     };
 
-    fetchData();
+    checkAuth();
+  }, [navigate]);
+
+  // Function to refresh all data
+  const refreshData = async () => {
+    try {
+      const [productsRes, merchandiseRes, ordersRes] = await Promise.all([
+        productService.getAll(),
+        merchandiseService.getAll(),
+        orderService.getAll()
+      ]);
+
+      setProducts(productsRes.data);
+      setMerchandise(merchandiseRes.data);
+      setOrders(ordersRes.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setLoading(false);
+    }
+  };
+
+  // Fetch products, merchandise, and orders
+  useEffect(() => {
+    refreshData();
   }, []);
 
   const handleLogout = () => {
@@ -85,8 +103,9 @@ const AdminDashboard = () => {
         price: parseFloat(newProduct.price)
       };
 
-      const response = await productService.create(productData);
-      setProducts([...products, response.data]);
+      await productService.create(productData);
+      // Refresh data to ensure consistency
+      await refreshData();
 
       // Reset form
       setNewProduct({
@@ -111,8 +130,9 @@ const AdminDashboard = () => {
         price: parseFloat(newMerch.price)
       };
 
-      const response = await merchandiseService.create(merchData);
-      setMerchandise([...merchandise, response.data]);
+      await merchandiseService.create(merchData);
+      // Refresh data to ensure consistency
+      await refreshData();
 
       // Reset form
       setNewMerch({
@@ -135,7 +155,8 @@ const AdminDashboard = () => {
 
     try {
       await productService.delete(id);
-      setProducts(products.filter(product => product._id !== id));
+      // Refresh data to ensure consistency
+      await refreshData();
     } catch (err) {
       console.error('Error deleting product:', err);
       alert('Failed to delete product');
@@ -149,7 +170,8 @@ const AdminDashboard = () => {
 
     try {
       await merchandiseService.delete(id);
-      setMerchandise(merchandise.filter(item => item._id !== id));
+      // Refresh data to ensure consistency
+      await refreshData();
     } catch (err) {
       console.error('Error deleting merchandise:', err);
       alert('Failed to delete merchandise');
@@ -158,10 +180,9 @@ const AdminDashboard = () => {
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await orderService.update(orderId, { status: newStatus });
-      setOrders(orders.map(order =>
-        order._id === orderId ? { ...order, status: newStatus } : order
-      ));
+      await orderService.update(orderId, { status: newStatus });
+      // Refresh data to ensure consistency
+      await refreshData();
     } catch (err) {
       console.error('Error updating order status:', err);
       alert('Failed to update order status');
@@ -175,7 +196,8 @@ const AdminDashboard = () => {
 
     try {
       await orderService.delete(id);
-      setOrders(orders.filter(order => order._id !== id));
+      // Refresh data to ensure consistency
+      await refreshData();
     } catch (err) {
       console.error('Error deleting order:', err);
       alert('Failed to delete order');
@@ -211,12 +233,9 @@ const AdminDashboard = () => {
         price: parseFloat(editProductForm.price)
       };
 
-      const response = await productService.update(productId, productData);
-
-      // Update the product in the local state
-      setProducts(products.map(p =>
-        p._id === productId ? response.data : p
-      ));
+      await productService.update(productId, productData);
+      // Refresh data to ensure consistency
+      await refreshData();
 
       setEditingProduct(null);
       setEditProductForm({
@@ -261,12 +280,9 @@ const AdminDashboard = () => {
         price: parseFloat(editMerchForm.price)
       };
 
-      const response = await merchandiseService.update(itemId, merchData);
-
-      // Update the merchandise in the local state
-      setMerchandise(merchandise.map(m =>
-        m._id === itemId ? response.data : m
-      ));
+      await merchandiseService.update(itemId, merchData);
+      // Refresh data to ensure consistency
+      await refreshData();
 
       setEditingMerch(null);
       setEditMerchForm({

@@ -8,6 +8,7 @@ const {
   deleteMerchandise
 } = require('../controllers/merchandiseController');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 // @route   GET api/merchandise
 // @desc    Get all merchandise
@@ -22,16 +23,16 @@ router.get('/:id', getMerchandiseItem);
 // @route   POST api/merchandise
 // @desc    Add new merchandise
 // @access  Private (admin only)
-router.post('/', auth, addMerchandise);
+router.post('/', admin, addMerchandise);
 
 // @route   PUT api/merchandise/:id
 // @desc    Update merchandise
 // @access  Private (admin only)
-router.put('/:id', auth, updateMerchandise);
+router.put('/:id', admin, updateMerchandise);
 
 // @route   DELETE api/merchandise/:id
 // @desc    Delete merchandise
 // @access  Private (admin only)
-router.delete('/:id', auth, deleteMerchandise);
+router.delete('/:id', admin, deleteMerchandise);
 
 module.exports = router;

@@ -1,9 +1,7 @@
 // controllers/authController.js
 const jwt = require('jsonwebtoken');
-
-// Hardcoded admin credentials
-const ADMIN_EMAIL = 'iphonedaddy@.com';
-const ADMIN_PASSWORD = 'iphonedaddy#';
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
 
 // @desc    Authenticate user & get token
 // @route   POST /api/auth/login
@@ -12,35 +10,45 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Check hardcoded credentials
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      // Return jsonwebtoken for admin
-      const payload = {
-        user: {
-          id: 'admin',
-          role: 'admin'
-        }
-      };
+    // Find user by email
+    const user = await User.findOne({ email });
 
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET || 'mySecret',
-        { expiresIn: 360000 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({
-            token,
-            user: {
-              id: 'admin',
-              email: ADMIN_EMAIL,
-              role: 'admin'
-            }
-          });
-        }
-      );
-    } else {
+    if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid Credentials' });
+    }
+
+    // Return jsonwebtoken
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role
+      }
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET || 'mySecret',
+      { expiresIn: 360000 },
+      (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name
+          }
+        });
+      }
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -52,13 +60,8 @@ exports.login = async (req, res) => {
 // @access  Private
 exports.getUser = async (req, res) => {
   try {
-    // Return hardcoded admin user data
-    res.json({
-      id: 'admin',
-      email: ADMIN_EMAIL,
-      role: 'admin',
-      name: 'Admin'
-    });
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

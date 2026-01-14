@@ -18,6 +18,16 @@ const Login = () => {
       const response = await authService.login({ email, password });
       // Store token in localStorage
       localStorage.setItem('token', response.data.token);
+
+      // Verify the user is an admin before navigating to admin dashboard
+      const userData = await authService.getMe();
+      if (userData.data.role !== 'admin') {
+        setError('Access denied. Admin privileges required.');
+        localStorage.removeItem('token');
+        setLoading(false);
+        return;
+      }
+
       navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.msg || 'Invalid credentials. Please try again.');

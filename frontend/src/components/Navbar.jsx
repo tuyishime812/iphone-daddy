@@ -47,8 +47,8 @@ const Navbar = () => {
             <Link to="/contact" className={`${isActive('/contact')} hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium`}>
               Contact
             </Link>
-            <Link to="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-              Admin Login
+            <Link to="/admin" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+              Admin
             </Link>
 
             {/* Cart Icon */}
@@ -146,11 +146,11 @@ const Navbar = () => {
               Contact
             </Link>
             <Link
-              to="/login"
+              to="/admin"
               className="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium"
               onClick={() => setIsOpen(false)}
             >
-              Admin Login
+              Admin
             </Link>
           </div>
         </div>

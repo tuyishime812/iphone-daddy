@@ -8,6 +8,7 @@ const {
   deleteProduct
 } = require('../controllers/productController');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 // @route   GET api/products
 // @desc    Get all products
@@ -22,16 +23,16 @@ router.get('/:id', getProduct);
 // @route   POST api/products
 // @desc    Add new product
 // @access  Private (admin only)
-router.post('/', auth, addProduct);
+router.post('/', admin, addProduct);
 
 // @route   PUT api/products/:id
 // @desc    Update product
 // @access  Private (admin only)
-router.put('/:id', auth, updateProduct);
+router.put('/:id', admin, updateProduct);
 
 // @route   DELETE api/products/:id
 // @desc    Delete product
 // @access  Private (admin only)
-router.delete('/:id', auth, deleteProduct);
+router.delete('/:id', admin, deleteProduct);
 
 module.exports = router;

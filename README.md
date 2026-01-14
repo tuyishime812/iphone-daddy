@@ -70,10 +70,44 @@ cd frontend
 npm run dev
 ```
 
-## Admin Access
+## Admin CMS Functionality
 
-- Email: `admin@iphonedaddy.com`
-- Password: `admin123`
+This application includes a comprehensive Content Management System (CMS) for administrators to manage the store:
+
+### Admin Access
+- **Login URL**: `/login`
+- **Admin Dashboard**: `/admin`
+- **Default Admin Credentials**:
+  - Email: `admin@iphonedaddy.com`
+  - Password: `admin123`
+
+### Admin Features
+1. **Dashboard Overview**:
+   - View statistics for products, merchandise, and orders
+   - Recent activity feed
+   - Quick action buttons
+
+2. **Product Management**:
+   - Add new iPhone products
+   - Edit existing product details
+   - Delete products
+   - Manage product categories (iPhone, iPad, Mac)
+
+3. **Merchandise Management**:
+   - Add new merchandise items (hoodies, t-shirts, socks, caps)
+   - Edit merchandise details
+   - Delete merchandise
+   - Manage merchandise categories
+
+4. **Order Management**:
+   - View all customer orders
+   - Update order status (pending, processing, shipped, delivered, cancelled)
+   - Delete orders
+
+### Security
+- Admin authentication with JWT tokens
+- Protected routes using admin middleware
+- Role-based access control
 
 ## Project Structure
 
